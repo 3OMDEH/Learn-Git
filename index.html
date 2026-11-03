@@ -3,9 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Omdeh</title>
+    <title>Omdeh — A little room to move</title>
+    <meta name="theme-color" content="#e3f2ff">
+    <style>
+        :root { color-scheme: light; font-family: Georgia, 'Times New Roman', serif; background: #e3f2ff; color: #244c70; }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100svh; display: grid; place-items: center; padding: clamp(20px, 6vw, 80px); background: radial-gradient(ellipse at 50% 35%, #f5fbff 0%, #e3f2ff 60%, #cbe4fa 100%); }
+        main { position: relative; isolation: isolate; overflow: hidden; width: 100%; height: 76svh; min-height: 240px; border: 1px solid #477da424; border-radius: 28px; background: #ffffff20; }
+        main::before, main::after { content: ''; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #88abc9; pointer-events: none; }
+        main::before { top: 18px; left: 18px; }
+        main::after { bottom: 18px; right: 18px; }
+        h1 { position: absolute; z-index: 2; margin: 0; top: 0; left: 0; max-width: 100%; text-shadow: 0 4px 24px #ffffffb0; }
+        button { display: block; padding: 16px 24px 22px; border: 0; border-radius: 18px; background: transparent; color: inherit; font: inherit; font-size: clamp(48px, 10vw, 136px); font-weight: 400; line-height: 1.1; letter-spacing: -.065em; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; transition: color .2s, text-shadow .2s; }
+        button:hover { color: #ad761d; text-shadow: 0 8px 32px #244c7020; }
+        button:focus-visible { outline: 2px solid #14324a; outline-offset: 4px; }
+        button.dragging { cursor: grabbing; color: #6c7309; }
+        .objects { position: absolute; inset: 0; pointer-events: none; perspective: 900px; }
+        .ai-object { position: absolute; width: clamp(110px, 19vw, 230px); filter: drop-shadow(10px 20px 12px #457aa32b); animation: float 8s ease-in-out infinite; }
+        .neural { top: 8%; left: 7%; }
+        .chip { top: 9%; right: 9%; width: clamp(100px, 15vw, 185px); animation-delay: -3s; }
+        .brain { bottom: 7%; left: 15%; width: clamp(105px, 15vw, 180px); animation-delay: -5s; }
+        .model { bottom: 8%; right: 13%; width: clamp(110px, 16vw, 195px); animation-delay: -2s; }
+        .ai-object svg { display: block; width: 100%; height: auto; overflow: visible; }
+        .connections { fill: none; stroke: #294052; stroke-width: 2; }
+        .signal { fill: none; stroke: #eafaff; stroke-width: 3; stroke-dasharray: 5 25; animation: signal 4s linear infinite; }
+        .node { fill: url(#node-blue); stroke: #e9f9ff; stroke-width: 2; }
+        .circuit { fill: none; stroke: #6198c2; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+        button { font-family: 'Arial Rounded MT Bold', 'Segoe UI', Arial, sans-serif; font-weight: 900; letter-spacing: .015em; color: #8fc8f2; -webkit-text-stroke: 3px #5a92bf; paint-order: stroke fill; text-shadow: 0 2px 0 #eaf8ff, 0 5px 0 #5c93bd, 0 8px 0 #4b7fa9, 0 15px 22px #3b77a433; }
+        button:hover, button.dragging { color: #b0deff; text-shadow: 0 2px 0 #fff, 0 5px 0 #5c93bd, 0 8px 0 #4b7fa9, 0 18px 26px #3b77a444; }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-15px) rotate(4deg); } }
+        @keyframes signal { to { stroke-dashoffset: -60; } }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+        @media (prefers-reduced-motion: reduce) { button { transition: none; } .ai-object, .signal { animation: none; } }
+    </style>
 </head>
 <body>
-    Learning Git
+    <main aria-label="Title movement area">
+        <div class="objects" aria-hidden="true">
+            <svg width="0" height="0" style="position:absolute"><defs>
+                <radialGradient id="node-blue" cx="30%" cy="25%"><stop stop-color="#fff"/><stop offset=".4" stop-color="#bde7ff"/><stop offset="1" stop-color="#629dcc"/></radialGradient>
+                <linearGradient id="chip-blue" x2="1" y2="1"><stop stop-color="#eefaff"/><stop offset=".5" stop-color="#a8d5f5"/><stop offset="1" stop-color="#6da6d0"/></linearGradient>
+            </defs></svg>
+            <div class="ai-object neural"><svg viewBox="0 0 230 180">
+                <path class="connections" d="M30 45 110 25 200 55M30 45 110 90 200 55M30 45 110 155 200 125M30 135 110 25 200 125M30 135 110 90 200 125M30 135 110 155"/>
+                <path class="signal" d="M30 45 110 90 200 55M30 135 110 155 200 125"/>
+                <g class="node"><circle cx="30" cy="45" r="14"/><circle cx="30" cy="135" r="14"/><circle cx="110" cy="25" r="14"/><circle cx="110" cy="90" r="14"/><circle cx="110" cy="155" r="14"/><circle cx="200" cy="55" r="14"/><circle cx="200" cy="125" r="14"/></g>
+            </svg></div>
+            <div class="ai-object chip"><svg viewBox="0 0 180 180">
+                <path class="circuit" d="M60 15V40M90 15V40M120 15V40M60 140V165M90 140V165M120 140V165M15 60H40M15 90H40M15 120H40M140 60H165M140 90H165M140 120H165"/>
+                <rect x="37" y="43" width="110" height="110" rx="24" fill="#6397c1"/>
+                <rect x="35" y="33" width="110" height="110" rx="24" fill="url(#chip-blue)" stroke="#e8f8ff" stroke-width="3"/>
+                <rect x="53" y="51" width="74" height="74" rx="15" fill="#e8f7ff80" stroke="#7babd0"/>
+                <text x="90" y="102" text-anchor="middle" fill="#386b94" font-family="Arial, sans-serif" font-size="37" font-weight="bold">AI</text>
+            </svg></div>
+            <div class="ai-object brain"><svg viewBox="0 0 180 180">
+                <path d="M87 35C65 13 42 29 42 48C18 46 13 72 27 85C9 105 22 129 43 130C41 154 71 164 87 145C103 164 133 154 131 130C155 130 167 103 150 85C165 65 151 45 132 48C131 25 104 16 87 35Z" fill="url(#chip-blue)" stroke="#ecfaff" stroke-width="3"/>
+                <path class="circuit" d="M87 36V144M45 58 61 72V91L44 105M61 91H87M43 130 66 116H87M129 59 112 74V91L131 106M112 91H87M131 130 108 116H87"/>
+                <g class="node"><circle cx="45" cy="58" r="6"/><circle cx="44" cy="105" r="6"/><circle cx="129" cy="59" r="6"/><circle cx="131" cy="106" r="6"/></g>
+            </svg></div>
+            <div class="ai-object model"><svg viewBox="0 0 200 180">
+                <g stroke="#e7f8ff" stroke-width="2" stroke-linejoin="round">
+                    <path d="m25 110 75-35 75 35-75 40Z" fill="#76a9d0"/><path d="M25 110v12l75 36 75-36v-12l-75 40Z" fill="#6195bf"/>
+                    <path d="m25 80 75-35 75 35-75 40Z" fill="#a8d6f5"/><path d="M25 80v12l75 36 75-36V80l-75 40Z" fill="#80b3da"/>
+                    <path d="m25 50 75-35 75 35-75 40Z" fill="url(#chip-blue)"/><path d="M25 50v12l75 36 75-36V50l-75 40Z" fill="#98c6e8"/>
+                </g>
+                <path d="m67 50 33-15 33 15-33 15Z" fill="none" stroke="#fff" stroke-width="3"/>
+                <circle cx="100" cy="50" r="5" fill="#fff"/>
+            </svg></div>
+        </div>
+        <h1><button type="button" aria-describedby="instructions">Omdeh</button></h1>
+    </main>
+    <p id="instructions" class="sr-only">Drag the title to move it within the frame, or use the arrow keys. Hold Shift for larger steps. Double-click or press Home to center it.</p>
+    <script>
+        const area = document.querySelector('main');
+        const title = document.querySelector('h1');
+        const handle = document.querySelector('button');
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const target = { x: 0, y: 0 };
+        const position = { x: 0, y: 0 };
+        let drag = null;
+        let frame = null;
+
+        function limits() {
+            return { x: Math.max(0, area.clientWidth - title.offsetWidth), y: Math.max(0, area.clientHeight - title.offsetHeight) };
+        }
+        function paint() {
+            frame = null;
+            const ease = reducedMotion.matches ? 1 : 0.28;
+            position.x += (target.x - position.x) * ease;
+            position.y += (target.y - position.y) * ease;
+            const moving = Math.abs(target.x - position.x) + Math.abs(target.y - position.y) > 0.1;
+            if (!moving) Object.assign(position, target);
+            title.style.transform = `translate3d(${position.x}px, ${position.y}px, 0)`;
+            if (moving) frame = requestAnimationFrame(paint);
+        }
+        function move(x, y, immediate = false) {
+            const max = limits();
+            target.x = Math.max(0, Math.min(max.x, x));
+            target.y = Math.max(0, Math.min(max.y, y));
+            if (immediate) Object.assign(position, target);
+            if (frame === null) frame = requestAnimationFrame(paint);
+        }
+        function center(immediate = false) {
+            const max = limits();
+            move(max.x / 2, max.y / 2, immediate);
+        }
+        handle.addEventListener('pointerdown', event => {
+            if (!event.isPrimary || event.button !== 0) return;
+            drag = { id: event.pointerId, x: event.clientX - position.x, y: event.clientY - position.y };
+            handle.setPointerCapture(event.pointerId);
+            handle.classList.add('dragging');
+        });
+        handle.addEventListener('pointermove', event => {
+            if (drag && event.pointerId === drag.id) move(event.clientX - drag.x, event.clientY - drag.y);
+        });
+        function endDrag() { drag = null; handle.classList.remove('dragging'); }
+        handle.addEventListener('pointerup', endDrag);
+        handle.addEventListener('pointercancel', endDrag);
+        handle.addEventListener('lostpointercapture', endDrag);
+        handle.addEventListener('dblclick', () => center());
+        handle.addEventListener('keydown', event => {
+            const step = event.shiftKey ? 40 : 12;
+            const directions = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+            if (event.key === 'Home') { event.preventDefault(); center(); }
+            if (directions[event.key]) {
+                event.preventDefault();
+                const [x, y] = directions[event.key];
+                move(target.x + x, target.y + y);
+            }
+        });
+        let initialized = false;
+        new ResizeObserver(() => {
+            if (!initialized) { center(true); initialized = true; }
+            else move(target.x, target.y, true);
+        }).observe(area);
+        new ResizeObserver(() => move(target.x, target.y, true)).observe(title);
+    </script>
 </body>
 </html>
